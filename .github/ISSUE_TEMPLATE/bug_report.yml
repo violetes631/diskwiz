@@ -1,0 +1,27 @@
+name: Bug report
+description: Something is broken or wrong
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, what you got.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: DiskWiz version
+      description: Output of `diskwiz --version`
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS and how DiskWiz was installed
+      placeholder: Fedora 45, release tarball
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: If DiskWiz removed something it should not have, please report it privately — see SECURITY.md.

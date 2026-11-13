@@ -16,7 +16,7 @@ pub fn parse_extra_caches(text: &str, cache: &Path, home: &Path) -> Vec<PathBuf>
             None => cache.join(l), // join() keeps absolute paths as they are
         })
         .filter(|p| !p.components().any(|c| matches!(c, std::path::Component::ParentDir)))
-        .filter(|p| p.parent().is_some() && p != home && p != cache && p.components().count() >= 3)
+        .filter(|p| p != home && p != cache && !home.starts_with(p) && crate::util::depth(p) >= 2)
         .collect()
 }
 
@@ -63,7 +63,7 @@ mod tests {
     fn rejects_dangerous_entries() {
         let cache = Path::new("/home/u/.cache");
         let home = Path::new("/home/u");
-        let v = parse_extra_caches("/\n/usr\n~/\n../../etc\n.\n", cache, home);
+        let v = parse_extra_caches("/\n/usr\n/home\n/home/u\n~/\n../../etc\n.\n", cache, home);
         assert!(v.is_empty(), "{v:?}");
     }
 }

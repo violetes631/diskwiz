@@ -25,7 +25,12 @@ jobs:
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
       - run: cargo build --locked
       - run: cargo test --locked
-      - run: cargo clippy --all-targets --locked
+      - run: cargo clippy --all-targets --locked -- -D warnings
+      - name: Validate desktop entry and AppStream metadata
+        run: |
+          sudo apt-get install -y desktop-file-utils appstream
+          desktop-file-validate data/*.desktop
+          appstreamcli validate --no-net data/*.metainfo.xml
 
   cli-portable:
     name: CLI build + tests (${{ matrix.os }})
@@ -39,6 +44,17 @@ jobs:
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
       # No GTK here: this checks the platform layer and all cleanup/scan logic natively.
+      - run: cargo build --locked --no-default-features
+      - run: cargo test --locked --no-default-features
+
+  msrv:
+    name: Minimum supported Rust (CLI)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: "1.88"
       - run: cargo build --locked --no-default-features
       - run: cargo test --locked --no-default-features
 

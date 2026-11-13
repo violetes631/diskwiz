@@ -21,7 +21,7 @@ jobs:
           d=diskwiz-${{ github.ref_name }}-linux-x86_64
           mkdir -p "$d"
           cp target/release/diskwiz LICENSE README.md "$d"/
-          cp data/*.desktop data/*.svg Makefile "$d"/
+          cp data/*.desktop data/*.svg data/*.metainfo.xml Makefile "$d"/
           tar czf "$d.tar.gz" "$d"
       - uses: actions/upload-artifact@v4
         with:
@@ -74,9 +74,12 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           merge-multiple: true
+      - name: Checksums
+        run: sha256sum *.tar.gz *.zip > SHA256SUMS
       - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           files: |
             *.tar.gz
             *.zip
+            SHA256SUMS
           generate_release_notes: true

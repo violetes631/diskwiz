@@ -1,7 +1,7 @@
 //! Small helpers shared by the whole crate.
 
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 use std::process::Command;
 
 use crate::i18n::{Lang, lookup};
@@ -80,6 +80,35 @@ pub fn config_dir() -> PathBuf {
     }
 }
 
+/// Quote one command-line argument the way Windows programs (MSVCRT / `CommandLineToArgvW`)
+/// split it again: `C:\Users\John Smith\x` -> `"C:\Users\John Smith\x"`.
+/// Needed because `Start-Process -ArgumentList` joins its items with plain spaces.
+pub fn quote_win_arg(a: &str) -> String {
+    if !a.is_empty() && !a.contains([' ', '\t', '"']) {
+        return a.to_string();
+    }
+    let mut out = String::from("\"");
+    let mut backslashes = 0;
+    for c in a.chars() {
+        match c {
+            '\\' => backslashes += 1,
+            '"' => {
+                out.push_str(&"\\".repeat(backslashes * 2 + 1));
+                out.push('"');
+                backslashes = 0;
+            }
+            _ => {
+                out.push_str(&"\\".repeat(backslashes));
+                backslashes = 0;
+                out.push(c);
+            }
+        }
+    }
+    out.push_str(&"\\".repeat(backslashes * 2));
+    out.push('"');
+    out
+}
+
 pub struct Output {
     pub ok: bool,
     pub stdout: String,
@@ -151,9 +180,20 @@ pub fn list_dir(dir: &Path) -> Vec<PathBuf> {
     fs::read_dir(dir).map(|rd| rd.flatten().map(|e| e.path()).collect()).unwrap_or_default()
 }
 
-/// Is deleting `p` obviously a terrible idea (filesystem root, home, a drive root)?
+/// Number of real path segments, ignoring the root and a Windows drive prefix:
+/// `/usr` and `C:\Windows` are 1, `/var/tmp` and `C:\Users\me` are 2.
+pub fn depth(p: &Path) -> usize {
+    p.components().filter(|c| matches!(c, Component::Normal(_))).count()
+}
+
+/// Is deleting `p` obviously a terrible idea (filesystem root, a top-level system folder such as
+/// `/usr` or `C:\Windows`, the home directory, or a folder that contains it)?
 pub fn is_dangerous_target(p: &Path) -> bool {
-    p.parent().is_none() || p == home() || p.components().count() < 3
+    is_dangerous_in(p, &home())
+}
+
+fn is_dangerous_in(p: &Path, home: &Path) -> bool {
+    p.parent().is_none() || depth(p) < 2 || p == home || home.starts_with(p)
 }
 
 #[cfg(test)]
@@ -184,6 +224,39 @@ mod tests {
         assert!(is_dangerous_target(Path::new("/")));
         assert!(is_dangerous_target(Path::new("/usr")));
         assert!(!is_dangerous_target(Path::new("/var/cache/foo")));
+    }
+
+    #[test]
+    fn quotes_windows_arguments() {
+        assert_eq!(quote_win_arg("--out"), "--out");
+        assert_eq!(quote_win_arg(""), "\"\"");
+        assert_eq!(quote_win_arg(r"C:\Users\John Smith\t.out"), r#""C:\Users\John Smith\t.out""#);
+        assert_eq!(quote_win_arg(r"C:\dir with space\"), r#""C:\dir with space\\""#);
+        assert_eq!(quote_win_arg(r#"say "hi""#), r#""say \"hi\"""#);
+    }
+
+    #[test]
+    fn shallow_and_home_related_paths_are_dangerous() {
+        let home = Path::new("/home/u/work");
+        assert!(is_dangerous_in(Path::new("/home"), home)); // too shallow
+        assert!(is_dangerous_in(Path::new("/home/u"), home)); // contains the home dir
+        assert!(is_dangerous_in(home, home));
+        assert!(!is_dangerous_in(Path::new("/home/u/work/cache"), home));
+        assert!(!is_dangerous_in(Path::new("/var/tmp/foo"), home));
+        assert_eq!(depth(Path::new("/")), 0);
+        assert_eq!(depth(Path::new("/usr")), 1);
+        assert_eq!(depth(Path::new("/var/tmp")), 2);
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn windows_system_folders_are_dangerous() {
+        let home = Path::new(r"C:\Users\me");
+        for p in [r"C:\", r"C:\Windows", r"C:\Users", r"C:\Program Files", r"D:\Data", r"C:\Users\me"] {
+            assert!(is_dangerous_in(Path::new(p), home), "{p}");
+        }
+        assert!(!is_dangerous_in(Path::new(r"C:\Users\me\AppData\Local\Temp\x"), home));
+        assert!(!is_dangerous_in(Path::new(r"D:\Games\cache"), home));
     }
 
     #[test]

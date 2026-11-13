@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.violetes631.Diskwiz</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>DiskWiz</name>
+  <summary>Free up disk space and see what is using it</summary>
+  <summary xml:lang="ru">Освободите место на диске и узнайте, чем оно занято</summary>
+  <description>
+    <p>DiskWiz is a disk cleaner and a WizTree-style disk usage analyzer. It finds package caches, logs, trash and other leftovers you can safely remove, and shows every folder and file as a treemap so the biggest space hogs are obvious.</p>
+    <p xml:lang="ru">DiskWiz — очистка диска и анализатор занятого места в стиле WizTree. Находит кэши пакетов, журналы, корзину и другой мусор, который можно безопасно удалить, и показывает папки и файлы в виде карты, чтобы сразу было видно, что занимает больше всего места.</p>
+    <ul>
+      <li>Cleanup items are detected at runtime: dnf, apt, pacman, zypper, Flatpak and snap</li>
+      <li>Fast multi-threaded scan with a treemap view</li>
+      <li>Administrator-level cleanup asks for rights only when needed</li>
+      <li>English and Russian interface</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">io.github.violetes631.Diskwiz.desktop</launchable>
+  <url type="homepage">https://github.com/violetes631/diskwiz</url>
+  <url type="bugtracker">https://github.com/violetes631/diskwiz/issues</url>
+  <provides>
+    <binary>diskwiz</binary>
+  </provides>
+  <categories>
+    <category>System</category>
+    <category>Utility</category>
+  </categories>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.2.0" date="2026-11-13"/>
+  </releases>
+</component>

@@ -116,7 +116,7 @@ pub fn run_elevated(exe: &Path, args: &[String]) -> Elevated {
     let _ = std::fs::remove_file(&out);
     let mut full: Vec<String> = vec!["--out".into(), out.to_string_lossy().into_owned()];
     full.extend(args.iter().cloned());
-    let arglist = full.iter().map(|a| ps_quote(a)).collect::<Vec<_>>().join(",");
+    let arglist = full.iter().map(|a| ps_quote(&crate::util::quote_win_arg(a))).collect::<Vec<_>>().join(",");
     let script = format!(
         "Start-Process -FilePath {} -ArgumentList {} -Verb RunAs -Wait -WindowStyle Hidden",
         ps_quote(&exe.to_string_lossy()),

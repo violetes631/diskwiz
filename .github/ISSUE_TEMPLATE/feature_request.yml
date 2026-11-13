@@ -1,0 +1,10 @@
+name: Feature request / new cleanup item
+description: Suggest an improvement or a place DiskWiz should be able to clean
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What would you like?
+      description: For a new cleanup item, give the folder or command and why it is safe to remove.
+    validations:
+      required: true

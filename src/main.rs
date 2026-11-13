@@ -125,8 +125,17 @@ fn cli_scan(args: &[String]) -> ExitCode {
     let mut it = args.iter();
     while let Some(a) = it.next() {
         match a.as_str() {
-            "--top" => top = it.next().and_then(|v| v.parse().ok()).unwrap_or(top),
-            "--threads" => threads = it.next().and_then(|v| v.parse().ok()).unwrap_or(threads),
+            flag @ ("--top" | "--threads") => {
+                let Some(n) = it.next().and_then(|v| v.parse::<usize>().ok()).filter(|&n| n > 0) else {
+                    eprintln!("diskwiz scan: {flag} needs a positive number");
+                    return ExitCode::from(2);
+                };
+                if flag == "--top" { top = n } else { threads = n }
+            }
+            flag if flag.starts_with("--") => {
+                eprintln!("diskwiz scan: unknown option '{flag}'\n\n{HELP}");
+                return ExitCode::from(2);
+            }
             p => path = p.to_string(),
         }
     }
