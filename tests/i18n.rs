@@ -71,11 +71,14 @@ fn used_keys() -> BTreeSet<String> {
     keys
 }
 
+/// Every non-English language; add new ones here.
+const TRANSLATED: [Lang; 1] = [Lang::Ru];
+
 #[test]
 fn every_used_string_is_translated() {
     let keys = used_keys();
     assert!(keys.len() > 50, "scanner found only {} keys — is it broken?", keys.len());
-    for lang in [Lang::Ru] {
+    for lang in TRANSLATED {
         let table = table_for(lang).unwrap();
         let missing: Vec<_> = keys.iter().filter(|k| !table.iter().any(|(t, _)| t == k)).collect();
         assert!(missing.is_empty(), "missing {} translations:\n{:#?}", lang.code(), missing);
@@ -85,7 +88,7 @@ fn every_used_string_is_translated() {
 #[test]
 fn no_stale_or_duplicate_translations() {
     let keys = used_keys();
-    for lang in [Lang::Ru] {
+    for lang in TRANSLATED {
         let table = table_for(lang).unwrap();
         let mut seen = BTreeSet::new();
         for (k, v) in table {
