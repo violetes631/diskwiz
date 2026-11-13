@@ -40,10 +40,10 @@ static LANG: OnceLock<Lang> = OnceLock::new();
 /// Language chosen from `DISKWIZ_LANG`, then the usual POSIX variables, then the OS API.
 pub fn detect() -> Lang {
     for var in ["DISKWIZ_LANG", "LC_ALL", "LC_MESSAGES", "LANGUAGE", "LANG"] {
-        if let Ok(v) = std::env::var(var) {
-            if let Some(l) = v.split(':').find_map(Lang::from_code) {
-                return l;
-            }
+        if let Ok(v) = std::env::var(var)
+            && let Some(l) = v.split(':').find_map(Lang::from_code)
+        {
+            return l;
         }
     }
     crate::platform::os_locale().and_then(|l| Lang::from_code(&l)).unwrap_or(Lang::En)
@@ -98,7 +98,10 @@ pub fn fill(pattern: &str, args: &[String]) -> String {
 #[macro_export]
 macro_rules! tr_f {
     ($pat:literal $(, $arg:expr)* $(,)?) => {
-        $crate::i18n::fill($crate::i18n::tr($pat), &[$(($arg).to_string()),*])
+        {
+            let args = [$(($arg).to_string()),*];
+            $crate::i18n::fill($crate::i18n::tr($pat), &args)
+        }
     };
 }
 

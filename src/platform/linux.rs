@@ -126,10 +126,10 @@ pub fn list_disks() -> Vec<DiskEntry> {
 /// Mount a partition read-only through udisks; returns the mount point.
 pub fn mount_ro(dev: &str) -> Result<String, String> {
     let o = run("udisksctl", &["mount", "-b", dev, "-o", "ro"]);
-    if o.ok {
-        if let Some(pos) = o.stdout.find(" at ") {
-            return Ok(o.stdout[pos + 4..].trim().trim_end_matches('.').to_string());
-        }
+    if o.ok
+        && let Some(pos) = o.stdout.find(" at ")
+    {
+        return Ok(o.stdout[pos + 4..].trim().trim_end_matches('.').to_string());
     }
     Err(if o.stderr.trim().is_empty() { o.stdout } else { o.stderr }.trim().to_string())
 }

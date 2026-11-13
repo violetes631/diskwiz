@@ -11,6 +11,9 @@ use crate::cleaners::{self, RootOutcome};
 use crate::i18n::tr;
 use crate::platform;
 use crate::tr_f;
+
+/// A closure that can be replaced after creation (the scan button re-runs itself).
+type SharedFn = Rc<RefCell<Option<Rc<dyn Fn()>>>>;
 use crate::util::human;
 
 struct CleanRow {
@@ -162,7 +165,7 @@ pub fn build(toasts: &adw::ToastOverlay) -> CleanPage {
     };
 
     // --- size scan
-    let scan: Rc<RefCell<Option<Rc<dyn Fn()>>>> = Rc::new(RefCell::new(None));
+    let scan: SharedFn = Rc::new(RefCell::new(None));
     {
         let (rows, sizes, working, update_btn, refresh_btn2) =
             (rows.clone(), sizes.clone(), working.clone(), update_btn.clone(), refresh_btn.clone());

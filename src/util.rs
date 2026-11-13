@@ -28,7 +28,7 @@ pub fn spaced(n: u64) -> String {
     let s = n.to_string();
     let mut out = String::with_capacity(s.len() + s.len() / 3);
     for (i, c) in s.chars().enumerate() {
-        if i > 0 && (s.len() - i) % 3 == 0 {
+        if i > 0 && (s.len() - i).is_multiple_of(3) {
             out.push(' ');
         }
         out.push(c);
@@ -144,15 +144,15 @@ pub fn which(cmd: &str) -> bool {
 pub fn path_size(p: &Path) -> u64 {
     let Ok(md) = fs::symlink_metadata(p) else { return 0 };
     let mut total = platform::alloc_size(&md);
-    if md.is_dir() {
-        if let Ok(rd) = fs::read_dir(p) {
-            for e in rd.flatten() {
-                total += match e.metadata() {
-                    Ok(m) if m.is_dir() => path_size(&e.path()),
-                    Ok(m) => platform::alloc_size(&m),
-                    Err(_) => 0,
-                };
-            }
+    if md.is_dir()
+        && let Ok(rd) = fs::read_dir(p)
+    {
+        for e in rd.flatten() {
+            total += match e.metadata() {
+                Ok(m) if m.is_dir() => path_size(&e.path()),
+                Ok(m) => platform::alloc_size(&m),
+                Err(_) => 0,
+            };
         }
     }
     total

@@ -64,10 +64,10 @@ fn column(
     f.connect_setup(move |_, o| setup(o.downcast_ref::<gtk::ListItem>().unwrap()));
     f.connect_bind(move |_, o| {
         let li = o.downcast_ref::<gtk::ListItem>().unwrap();
-        if let Some(row) = li.item().and_downcast::<gtk::TreeListRow>() {
-            if let Some(bo) = row.item().and_downcast::<glib::BoxedAnyObject>() {
-                bind(li, &bo, &row);
-            }
+        if let Some(row) = li.item().and_downcast::<gtk::TreeListRow>()
+            && let Some(bo) = row.item().and_downcast::<glib::BoxedAnyObject>()
+        {
+            bind(li, &bo, &row);
         }
     });
     let c = gtk::ColumnViewColumn::new(Some(title), Some(f));

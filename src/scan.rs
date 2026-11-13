@@ -114,10 +114,10 @@ fn scan_dir(sh: &Shared, idx: u32, path: &Path) {
                     sh.prog.denied.fetch_add(1, Ordering::Relaxed);
                     continue;
                 };
-                if let Some(id) = platform::hardlink_id(&md) {
-                    if !sh.seen.lock().unwrap().insert(id) {
-                        continue;
-                    }
+                if let Some(id) = platform::hardlink_id(&md)
+                    && !sh.seen.lock().unwrap().insert(id)
+                {
+                    continue;
                 }
                 let size = platform::alloc_size(&md);
                 files += 1;
