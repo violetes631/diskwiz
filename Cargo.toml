@@ -1,0 +1,48 @@
+[package]
+name = "diskwiz"
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Cross-platform disk cleaner and WizTree-style disk usage analyzer (GTK4 / libadwaita)"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/violetes631/diskwiz"
+readme = "README.md"
+keywords = ["disk", "cleaner", "treemap", "disk-usage", "gtk4"]
+categories = ["filesystem", "command-line-utilities", "gui"]
+
+[lib]
+name = "diskwiz"
+path = "src/lib.rs"
+
+[[bin]]
+name = "diskwiz"
+path = "src/main.rs"
+
+[features]
+default = ["gui"]
+# Without `gui` only the CLI (scan / list / clean) is built — no GTK needed.
+gui = ["dep:adw", "dep:gtk", "dep:async-channel"]
+
+[dependencies]
+adw = { version = "0.9.2", package = "libadwaita", features = ["v1_5"], optional = true }
+gtk = { version = "0.11.5", package = "gtk4", features = ["v4_12"], optional = true }
+async-channel = { version = "2", optional = true }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_Storage_FileSystem",
+    "Win32_Globalization",
+    "Win32_System_Console",
+] }
+
+[dev-dependencies]
+tempfile = "3"
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+strip = true

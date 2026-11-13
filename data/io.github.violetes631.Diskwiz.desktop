@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=DiskWiz
+Name[ru]=DiskWiz
+GenericName=Disk cleaner and analyzer
+GenericName[ru]=Очистка и анализ диска
+Comment=Free up disk space and see what is using it
+Comment[ru]=Освободите место на диске и узнайте, чем оно занято
+Exec=diskwiz
+Icon=io.github.violetes631.Diskwiz
+Terminal=false
+Categories=System;Filesystem;GTK;
+Keywords=disk;space;cleaner;usage;treemap;storage;cache;trash;
+StartupNotify=true

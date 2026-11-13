@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: System libraries
+        run: sudo apt-get update && sudo apt-get install -y libgtk-4-dev libadwaita-1-dev pkg-config
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release --locked
+      - name: Package
+        run: |
+          d=diskwiz-${{ github.ref_name }}-linux-x86_64
+          mkdir -p "$d"
+          cp target/release/diskwiz LICENSE README.md "$d"/
+          cp data/*.desktop data/*.svg Makefile "$d"/
+          tar czf "$d.tar.gz" "$d"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: "*.tar.gz"
+
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gtk4
+            mingw-w64-x86_64-libadwaita
+            mingw-w64-x86_64-pkgconf
+            mingw-w64-x86_64-rust
+            mingw-w64-x86_64-gcc
+            zip
+      - run: cargo build --release --locked
+      - name: Bundle GTK runtime
+        run: |
+          d=diskwiz-${{ github.ref_name }}-windows-x86_64
+          mkdir -p "$d/share" "$d/lib"
+          cp target/release/diskwiz.exe "$d"/
+          # DLLs the exe depends on (transitively), taken from the MinGW prefix
+          ldd target/release/diskwiz.exe | awk '/mingw64/ {print $3}' | sort -u | xargs -I{} cp {} "$d"/
+          cp -r /mingw64/share/glib-2.0 "$d/share/"
+          mkdir -p "$d/share/icons"
+          cp -r /mingw64/share/icons/Adwaita /mingw64/share/icons/hicolor "$d/share/icons/"
+          cp -r /mingw64/lib/gdk-pixbuf-2.0 "$d/lib/"
+          cp LICENSE README.md "$d"/
+          zip -r "$d.zip" "$d"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: "*.zip"
+
+  publish:
+    needs: [linux, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            *.tar.gz
+            *.zip
+          generate_release_notes: true
