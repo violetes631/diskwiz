@@ -130,6 +130,7 @@ mod tests {
         std::fs::write(&f, b"1").unwrap();
         remove_all(&[PathBuf::from("/"), PathBuf::from("/usr"), f.clone()]);
         assert!(!f.exists());
+        #[cfg(unix)]
         assert!(std::path::Path::new("/usr").exists());
     }
 }

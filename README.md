@@ -56,10 +56,10 @@ make && sudo make install             # or: make install PREFIX=$HOME/.local
 ### Windows
 
 Download the zip from the Releases page and run `diskwiz.exe`. To build it yourself, install
-[MSYS2](https://www.msys2.org/), then in the *MINGW64* shell:
+[MSYS2](https://www.msys2.org/), then in the *UCRT64* shell:
 
 ```sh
-pacman -S mingw-w64-x86_64-{gtk4,libadwaita,pkgconf,rust,gcc}
+pacman -S mingw-w64-ucrt-x86_64-{gtk4,libadwaita,pkgconf,rust,gcc}
 cargo build --release
 ```
 
