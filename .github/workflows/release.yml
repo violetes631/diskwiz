@@ -23,7 +23,7 @@ jobs:
           cp target/release/diskwiz LICENSE README.md "$d"/
           cp data/*.desktop data/*.svg data/*.metainfo.xml Makefile "$d"/
           tar czf "$d.tar.gz" "$d"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: linux
           path: "*.tar.gz"
@@ -60,7 +60,7 @@ jobs:
           cp -r /ucrt64/lib/gdk-pixbuf-2.0 "$d/lib/"
           cp LICENSE README.md "$d"/
           zip -r "$d.zip" "$d"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: windows
           path: "*.zip"
