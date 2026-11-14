@@ -11,9 +11,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use windows_sys::Win32::Globalization::GetUserDefaultLocaleName;
-use windows_sys::Win32::Storage::FileSystem::{
-    GetDiskFreeSpaceExW, GetDriveTypeW, GetLogicalDrives,
-};
+use windows_sys::Win32::Storage::FileSystem::{GetDiskFreeSpaceExW, GetDriveTypeW, GetLogicalDrives};
 use windows_sys::Win32::System::Console::{ATTACH_PARENT_PROCESS, AttachConsole};
 
 use super::{DiskEntry, Elevated};
@@ -122,10 +120,8 @@ pub fn run_elevated(exe: &Path, args: &[String]) -> Elevated {
         ps_quote(&exe.to_string_lossy()),
         arglist
     );
-    let res = Command::new("powershell")
-        .args(["-NoProfile", "-NonInteractive", "-Command", &script])
-        .creation_flags(CREATE_NO_WINDOW)
-        .output();
+    let res =
+        Command::new("powershell").args(["-NoProfile", "-NonInteractive", "-Command", &script]).creation_flags(CREATE_NO_WINDOW).output();
     let report = std::fs::read_to_string(&out);
     let _ = std::fs::remove_file(&out);
     match (res, report) {

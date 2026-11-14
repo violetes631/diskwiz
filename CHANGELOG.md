@@ -1,12 +1,13 @@
 # Changelog
 
-## Unreleased
+## 0.2.1 — 2026-11-14
 - Safety: the "dangerous path" rule now also protects top-level Windows folders (`C:\Windows`,
   `C:\Users`, `D:\Data`, …) and any folder that contains the home directory; it used to count the drive prefix as a path segment.
 - Fixed administrator cleanup on Windows when the user name or temp path contains a space (the report path was split into two arguments, so the run was reported as cancelled).
 - `diskwiz scan` now rejects unknown options and invalid `--top` / `--threads` values instead of ignoring them.
 - AppStream metadata (`share/metainfo`) so software centers can show DiskWiz; `make install` installs it.
-- Releases include `SHA256SUMS`; CI checks the desktop entry, AppStream file, clippy warnings and the minimum Rust version.
+- Releases include `SHA256SUMS`; CI checks formatting (`rustfmt.toml`), clippy warnings, the desktop entry, the AppStream file and the minimum Rust version.
+- Added `SECURITY.md`, `CONTRIBUTING.md`, issue templates and Dependabot.
 
 ## 0.2.0 — first public version
 - Renamed to **DiskWiz**; split into a GUI-free core library and a GTK front-end (`gui` feature).

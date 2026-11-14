@@ -50,12 +50,7 @@ fn build_ui(app: &adw::Application) {
         gtk::style_context_add_provider_for_display(&display, &provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
     }
 
-    let win = adw::ApplicationWindow::builder()
-        .application(app)
-        .title(APP_NAME)
-        .default_width(1000)
-        .default_height(780)
-        .build();
+    let win = adw::ApplicationWindow::builder().application(app).title(APP_NAME).default_width(1000).default_height(780).build();
     let toasts = adw::ToastOverlay::new();
     win.set_content(Some(&toasts));
     let view = adw::ToolbarView::new();

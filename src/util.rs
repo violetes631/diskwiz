@@ -130,8 +130,7 @@ pub fn run(cmd: &str, args: &[&str]) -> Output {
 
 /// Is `cmd` an executable on `PATH` (plus the sbin dirs a non-root PATH often lacks)?
 pub fn which(cmd: &str) -> bool {
-    let mut dirs: Vec<PathBuf> =
-        std::env::var_os("PATH").map(|p| std::env::split_paths(&p).collect()).unwrap_or_default();
+    let mut dirs: Vec<PathBuf> = std::env::var_os("PATH").map(|p| std::env::split_paths(&p).collect()).unwrap_or_default();
     if cfg!(unix) {
         dirs.extend(["/usr/sbin", "/sbin", "/usr/local/sbin"].map(PathBuf::from));
     }

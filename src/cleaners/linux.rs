@@ -106,7 +106,14 @@ pub fn items() -> Vec<CleanItem> {
             hint: "Disabled revisions of snap packages",
             icon: "package-x-generic-symbolic",
             root: true,
-            size: || Some(old_snaps().iter().map(|(n, r)| fs::metadata(format!("/var/lib/snapd/snaps/{n}_{r}.snap")).map(|m| m.len()).unwrap_or(0)).sum()),
+            size: || {
+                Some(
+                    old_snaps()
+                        .iter()
+                        .map(|(n, r)| fs::metadata(format!("/var/lib/snapd/snaps/{n}_{r}.snap")).map(|m| m.len()).unwrap_or(0))
+                        .sum(),
+                )
+            },
             run: clean_snaps,
         });
     }
@@ -197,7 +204,8 @@ fn package_manager_items() -> Vec<CleanItem> {
                 root: true,
                 size: || None,
                 run: || {
-                    let names: Vec<String> = run("pacman", &["-Qdtq"]).stdout.lines().map(str::trim).filter(|l| !l.is_empty()).map(String::from).collect();
+                    let names: Vec<String> =
+                        run("pacman", &["-Qdtq"]).stdout.lines().map(str::trim).filter(|l| !l.is_empty()).map(String::from).collect();
                     if names.is_empty() {
                         return tr("no orphaned packages").into();
                     }

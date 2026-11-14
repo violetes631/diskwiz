@@ -129,7 +129,11 @@ pub fn items() -> Vec<CleanItem> {
             root: false,
             size: || Some(paths_size(&recycle_bins())),
             run: || {
-                if powershell("Clear-RecycleBin -Force -ErrorAction SilentlyContinue") { tr("trash emptied").into() } else { tr("done").into() }
+                if powershell("Clear-RecycleBin -Force -ErrorAction SilentlyContinue") {
+                    tr("trash emptied").into()
+                } else {
+                    tr("done").into()
+                }
             },
         },
         CleanItem {

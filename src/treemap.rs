@@ -131,8 +131,7 @@ fn hue_for_ext(ext: &str) -> Option<f64> {
         "jpg" | "jpeg" | "png" | "gif" | "webp" | "bmp" | "svg" | "raw" | "heic" => 0.33,
         "zip" | "rar" | "7z" | "tar" | "gz" | "xz" | "zst" | "bz2" | "iso" | "img" => 0.09,
         "pdf" | "doc" | "docx" | "odt" | "txt" | "xls" | "xlsx" | "ppt" | "pptx" => 0.58,
-        "py" | "js" | "ts" | "c" | "cpp" | "h" | "rs" | "go" | "java" | "json" | "html" | "css" | "so" | "o" | "a" | "pak"
-        | "dll" => 0.48,
+        "py" | "js" | "ts" | "c" | "cpp" | "h" | "rs" | "go" | "java" | "json" | "html" | "css" | "so" | "o" | "a" | "pak" | "dll" => 0.48,
         _ => return None,
     })
 }

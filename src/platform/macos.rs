@@ -6,17 +6,11 @@ use std::process::Command;
 use super::{DiskEntry, Elevated};
 use crate::util::human;
 
-pub use super::unix::{
-    alloc_size, disk_usage, hardlink_id, mount_ro, open_path, os_locale, skip_set, unmount,
-};
+pub use super::unix::{alloc_size, disk_usage, hardlink_id, mount_ro, open_path, os_locale, skip_set, unmount};
 
 pub fn list_disks() -> Vec<DiskEntry> {
-    let mut v = vec![DiskEntry {
-        title: "Macintosh HD · /".into(),
-        sub: human(super::disk_usage("/").0),
-        dev: None,
-        mount: Some("/".into()),
-    }];
+    let mut v =
+        vec![DiskEntry { title: "Macintosh HD · /".into(), sub: human(super::disk_usage("/").0), dev: None, mount: Some("/".into()) }];
     if let Ok(rd) = std::fs::read_dir("/Volumes") {
         for e in rd.flatten() {
             let p = e.path();
@@ -44,11 +38,9 @@ pub fn run_elevated(exe: &Path, args: &[String]) -> Elevated {
     }
     let script = format!("do shell script \"{}\" with administrator privileges", cmd.replace('\\', "\\\\").replace('"', "\\\""));
     match Command::new("osascript").args(["-e", &script]).output() {
-        Ok(o) if o.status.success() => Elevated::Done {
-            stdout: String::from_utf8_lossy(&o.stdout).into_owned(),
-            stderr: String::new(),
-            ok: true,
-        },
+        Ok(o) if o.status.success() => {
+            Elevated::Done { stdout: String::from_utf8_lossy(&o.stdout).into_owned(), stderr: String::new(), ok: true }
+        }
         Ok(o) => {
             let err = String::from_utf8_lossy(&o.stderr).into_owned();
             if err.contains("-128") { Elevated::Cancelled } else { Elevated::Done { stdout: String::new(), stderr: err, ok: false } }

@@ -5,7 +5,6 @@ use std::rc::Rc;
 
 use adw::prelude::*;
 
-
 use super::{margins, spawn_rx};
 use crate::cleaners::{self, RootOutcome};
 use crate::i18n::tr;
@@ -135,7 +134,8 @@ pub fn build(toasts: &adw::ToastOverlay) -> CleanPage {
     if let Some(g) = make_group(tr("No password needed"), false) {
         page.append(&g);
     }
-    let admin_title = if cfg!(windows) { tr("System · administrator rights required") } else { tr("System · administrator password required") };
+    let admin_title =
+        if cfg!(windows) { tr("System · administrator rights required") } else { tr("System · administrator password required") };
     if let Some(g) = make_group(admin_title, true) {
         page.append(&g);
     }
@@ -235,11 +235,18 @@ pub fn build(toasts: &adw::ToastOverlay) -> CleanPage {
 
     // --- cleaning
     {
-        let (rows, working, update_btn, refresh_btn2, scan, say, toasts, refresh_free) =
-            (rows.clone(), working.clone(), update_btn.clone(), refresh_btn.clone(), scan.clone(), say.clone(), toasts.clone(), refresh_free);
+        let (rows, working, update_btn, refresh_btn2, scan, say, toasts, refresh_free) = (
+            rows.clone(),
+            working.clone(),
+            update_btn.clone(),
+            refresh_btn.clone(),
+            scan.clone(),
+            say.clone(),
+            toasts.clone(),
+            refresh_free,
+        );
         clean_btn.connect_clicked(move |_| {
-            let chosen: Vec<usize> =
-                rows.borrow().iter().enumerate().filter(|(_, r)| r.sw.is_active()).map(|(i, _)| i).collect();
+            let chosen: Vec<usize> = rows.borrow().iter().enumerate().filter(|(_, r)| r.sw.is_active()).map(|(i, _)| i).collect();
             if chosen.is_empty() {
                 return;
             }
@@ -270,8 +277,15 @@ pub fn build(toasts: &adw::ToastOverlay) -> CleanPage {
                 let after = platform::disk_usage(root_disk()).2;
                 let _ = tx.send_blocking(Msg::Done(after.saturating_sub(before)));
             });
-            let (say, toasts, working, refresh_btn2, update_btn, scan, refresh_free) =
-                (say.clone(), toasts.clone(), working.clone(), refresh_btn2.clone(), update_btn.clone(), scan.clone(), refresh_free.clone());
+            let (say, toasts, working, refresh_btn2, update_btn, scan, refresh_free) = (
+                say.clone(),
+                toasts.clone(),
+                working.clone(),
+                refresh_btn2.clone(),
+                update_btn.clone(),
+                scan.clone(),
+                refresh_free.clone(),
+            );
             spawn_rx(rx, move |m| match m {
                 Msg::Log(l) => say(&l),
                 Msg::Done(freed) => {

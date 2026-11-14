@@ -11,10 +11,8 @@ use crate::util::{human, run};
 
 pub use super::unix::{alloc_size, disk_usage, hardlink_id, open_path, os_locale};
 
-const REAL_FS: [&str; 14] = [
-    "btrfs", "ext2", "ext3", "ext4", "xfs", "f2fs", "ntfs", "ntfs3", "fuseblk", "vfat", "exfat", "zfs", "jfs",
-    "reiserfs",
-];
+const REAL_FS: [&str; 14] =
+    ["btrfs", "ext2", "ext3", "ext4", "xfs", "f2fs", "ntfs", "ntfs3", "fuseblk", "vfat", "exfat", "zfs", "jfs", "reiserfs"];
 
 /// Decode the `\040`-style octal escapes used in /proc/self/mountinfo.
 fn unescape_mount(s: &str) -> String {
@@ -106,11 +104,7 @@ pub fn list_disks() -> Vec<DiskEntry> {
         let uuid = d.get("UUID").cloned().unwrap_or_default();
         if REAL_FS.contains(&fsname.as_str()) && !by_src.iter().any(|(s, _)| *s == path) && !seen_uuid.contains(&uuid) {
             let size: u64 = d.get("SIZE").and_then(|s| s.parse().ok()).unwrap_or(0);
-            let label = d
-                .get("LABEL")
-                .filter(|l| !l.is_empty())
-                .cloned()
-                .unwrap_or_else(|| path.trim_start_matches("/dev/").to_string());
+            let label = d.get("LABEL").filter(|l| !l.is_empty()).cloned().unwrap_or_else(|| path.trim_start_matches("/dev/").to_string());
             entries.push(DiskEntry {
                 title: format!("{label} · {}", tr("not mounted")),
                 sub: format!("{}, {}, {}", path.trim_start_matches("/dev/"), fsname, human(size)),
@@ -147,11 +141,7 @@ fn skip_from(mounts: &[(String, String, String)], root: &str) -> HashSet<PathBuf
         .map(|(_, _, s)| s.clone());
     let Some(src) = src else { return HashSet::new() };
     let prefix = format!("{}/", root.trim_end_matches('/'));
-    mounts
-        .iter()
-        .filter(|(mp, _, s)| mp != root && mp.starts_with(&prefix) && *s != src)
-        .map(|(mp, _, _)| PathBuf::from(mp))
-        .collect()
+    mounts.iter().filter(|(mp, _, s)| mp != root && mp.starts_with(&prefix) && *s != src).map(|(mp, _, _)| PathBuf::from(mp)).collect()
 }
 
 pub fn skip_set(root: &str) -> HashSet<PathBuf> {

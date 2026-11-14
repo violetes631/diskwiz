@@ -81,10 +81,7 @@ fn column(
 fn simple_col(title: &str, expand: bool, width: i32, right: bool, f: impl Fn(&Row) -> String + 'static) -> gtk::ColumnViewColumn {
     let fac = gtk::SignalListItemFactory::new();
     fac.connect_setup(move |_, o| {
-        let l = gtk::Label::builder()
-            .xalign(if right { 1.0 } else { 0.0 })
-            .ellipsize(gtk::pango::EllipsizeMode::Middle)
-            .build();
+        let l = gtk::Label::builder().xalign(if right { 1.0 } else { 0.0 }).ellipsize(gtk::pango::EllipsizeMode::Middle).build();
         o.downcast_ref::<gtk::ListItem>().unwrap().set_child(Some(&l));
     });
     fac.connect_bind(move |_, o| {
@@ -113,7 +110,16 @@ fn child_rows(tree: &Tree, node: u32) -> Vec<Row> {
         .iter()
         .map(|&c| {
             let n = &tree.nodes[c as usize];
-            Row { name: n.name.clone(), size: n.size, files: n.nfiles, is_dir: true, node: Some(c), parent: node, frac: n.size as f64 / total, path: String::new() }
+            Row {
+                name: n.name.clone(),
+                size: n.size,
+                files: n.nfiles,
+                is_dir: true,
+                node: Some(c),
+                parent: node,
+                frac: n.size as f64 / total,
+                path: String::new(),
+            }
         })
         .collect();
     rows.extend(d.fl.iter().map(|(n, s)| Row {
@@ -275,7 +281,11 @@ pub fn build(window: &adw::ApplicationWindow) -> gtk::Box {
             exp.set_list_row(Some(row));
             let b = exp.child().and_downcast::<gtk::Box>().unwrap();
             let r = bo.borrow::<Row>();
-            b.first_child().and_downcast::<gtk::Image>().unwrap().set_icon_name(Some(if r.is_dir { "folder-symbolic" } else { "text-x-generic-symbolic" }));
+            b.first_child().and_downcast::<gtk::Image>().unwrap().set_icon_name(Some(if r.is_dir {
+                "folder-symbolic"
+            } else {
+                "text-x-generic-symbolic"
+            }));
             b.last_child().and_downcast::<gtk::Label>().unwrap().set_label(&r.name);
         },
     ));
@@ -474,7 +484,8 @@ pub fn build(window: &adw::ApplicationWindow) -> gtk::Box {
         let (entries, model) = (entries.clone(), model.clone());
         move || {
             let list = platform::list_disks();
-            let labels: Vec<String> = list.iter().map(|e| if e.sub.is_empty() { e.title.clone() } else { format!("{}   ({})", e.title, e.sub) }).collect();
+            let labels: Vec<String> =
+                list.iter().map(|e| if e.sub.is_empty() { e.title.clone() } else { format!("{}   ({})", e.title, e.sub) }).collect();
             let refs: Vec<&str> = labels.iter().map(|s| s.as_str()).collect();
             model.splice(0, model.n_items(), &refs);
             *entries.borrow_mut() = list;
@@ -537,7 +548,8 @@ pub fn build(window: &adw::ApplicationWindow) -> gtk::Box {
                     match result {
                         Some(tree) => {
                             let top = scan::top_files(&tree, TOP_FILES);
-                            let _ = tx.send_blocking(Msg::Done(tree, top, prog.denied.load(Ordering::Relaxed), flag.load(Ordering::Relaxed)));
+                            let _ =
+                                tx.send_blocking(Msg::Done(tree, top, prog.denied.load(Ordering::Relaxed), flag.load(Ordering::Relaxed)));
                         }
                         None => {
                             let _ = tx.send_blocking(Msg::Failed(tr("the scanner crashed").into()));
@@ -600,7 +612,16 @@ pub fn build(window: &adw::ApplicationWindow) -> gtk::Box {
                     top_store.remove_all();
                     for (size, node, name) in top {
                         let p = Path::new(&tree.path(node)).join(&name).to_string_lossy().into_owned();
-                        top_store.append(&glib::BoxedAnyObject::new(Row { name, size, files: 1, is_dir: false, node: None, parent: node, frac: 0.0, path: p }));
+                        top_store.append(&glib::BoxedAnyObject::new(Row {
+                            name,
+                            size,
+                            files: 1,
+                            is_dir: false,
+                            node: None,
+                            parent: node,
+                            frac: 0.0,
+                            path: p,
+                        }));
                     }
                     go(0);
                 }

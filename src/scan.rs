@@ -189,13 +189,7 @@ pub fn scan_tree(root: &str, cancel: Arc<AtomicBool>, prog: Arc<Progress>) -> Tr
 }
 
 /// Scan `root` with explicit parallelism and a set of directories that must not be entered.
-pub fn scan_tree_with(
-    root: &str,
-    cancel: Arc<AtomicBool>,
-    prog: Arc<Progress>,
-    threads: usize,
-    skip: HashSet<PathBuf>,
-) -> Tree {
+pub fn scan_tree_with(root: &str, cancel: Arc<AtomicBool>, prog: Arc<Progress>, threads: usize, skip: HashSet<PathBuf>) -> Tree {
     let sh = Arc::new(Shared {
         nodes: Mutex::new(vec![new_node(root.to_string(), NO_PARENT)]),
         queue: Mutex::new((VecDeque::from([(0u32, PathBuf::from(root))]), 1)),
@@ -284,9 +278,8 @@ mod tests {
         assert_eq!(t.nodes[root.dirs[0] as usize].name, "a");
         // a node's size is the sum of its parts
         for n in &t.nodes {
-            let parts: u64 = n.fl.iter().map(|f| f.1).sum::<u64>()
-                + n.small_size
-                + n.dirs.iter().map(|&c| t.nodes[c as usize].size).sum::<u64>();
+            let parts: u64 =
+                n.fl.iter().map(|f| f.1).sum::<u64>() + n.small_size + n.dirs.iter().map(|&c| t.nodes[c as usize].size).sum::<u64>();
             assert_eq!(n.size, parts);
         }
     }

@@ -41,7 +41,11 @@ pub struct DiskEntry {
 
 /// Result of running something with administrator rights.
 pub enum Elevated {
-    Done { stdout: String, stderr: String, ok: bool },
+    Done {
+        stdout: String,
+        stderr: String,
+        ok: bool,
+    },
     /// The user dismissed / failed the authentication dialog.
     Cancelled,
     Failed(String),
